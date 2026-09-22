@@ -1,20 +1,11 @@
 {
   "name": "Go Development",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-
-  "features": {
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "latest"
-    }
-  },
-
+  "image": "mcr.microsoft.com/devcontainers/go:1-1.25-bookworm",
   "customizations": {
     "vscode": {
       "extensions": [
         "golang.go"
       ]
     }
-  },
-
-  "postCreateCommand": "go version"
+  }
 }
