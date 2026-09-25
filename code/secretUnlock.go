@@ -1,4 +1,4 @@
-package totp
+package code
 
 import "github.com/xlzd/gotp"
 

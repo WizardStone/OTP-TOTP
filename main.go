@@ -3,7 +3,7 @@ package main
 import (
 	"fmt";
 	"os";
-	"totp/totp"
+	"totp/code"
 	
 )
 
@@ -15,6 +15,6 @@ func main () {
 	if len(os.Args) == 2{
 		Key := os.Args[1]
 		fmt.Print("Code:")
-		totp.GetCode(Key)
+		code.GetCode(Key)
 	}
 }
