@@ -1,16 +1,11 @@
 package totp
 
-import (
-	"github.com/xlzd/gotp"
-)
+import "github.com/xlzd/gotp"
 
-func GetCode(Key) {
-	totp := gotp.NewDefaultTOTP(Key)
+func GetCode(key string) string {
+	t := gotp.NewDefaultTOTP(key)
 
 	// 3. Generate a token (e.g., to display to a user or test)
-	token, err := totp.Now()
-	if err != nil {
-		panic(err)
-	}
-	return token
+
+	return t.Now()
 }
