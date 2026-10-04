@@ -1,0 +1,94 @@
+name: Build and release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build release binaries
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build binaries
+        env:
+          CGO_ENABLED: "0"
+        run: |
+          set -eux
+
+          VERSION="${GITHUB_REF_NAME}"
+          PACKAGE="./"
+
+          mkdir -p dist
+
+          GOOS=windows GOARCH=amd64 go build \
+            -trimpath \
+            -ldflags="-s -w" \
+            -o "dist/TOTP_windows_amd64.exe" \
+            "$PACKAGE"
+
+          GOOS=linux GOARCH=amd64 go build \
+            -trimpath \
+            -ldflags="-s -w" \
+            -o "dist/TOTP_linux_amd64" \
+            "$PACKAGE"
+
+          GOOS=linux GOARCH=arm64 go build \
+            -trimpath \
+            -ldflags="-s -w" \
+            -o "dist/TOTP_linux_arm64" \
+            "$PACKAGE"
+
+          GOOS=darwin GOARCH=amd64 go build \
+            -trimpath \
+            -ldflags="-s -w" \
+            -o "dist/TOTP_darwin_amd64" \
+            "$PACKAGE"
+
+          GOOS=darwin GOARCH=arm64 go build \
+            -trimpath \
+            -ldflags="-s -w" \
+            -o "dist/TOTP_darwin_arm64" \
+            "$PACKAGE"
+
+          chmod +x dist/myapp_*_linux_*
+          chmod +x dist/myapp_*_darwin_*
+
+      - name: Generate checksums
+        working-directory: dist
+        run: sha256sum * > checksums.txt
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-binaries-${{ github.ref_name }}
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            dist/* \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes \
+            --verify-tag
