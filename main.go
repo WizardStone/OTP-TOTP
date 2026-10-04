@@ -8,13 +8,13 @@ import (
 )
 
 func main () {
-	fmt.Println("Working")
+	// fmt.Println("Working")
 	if len(os.Args) == 1 {
 		fmt.Println("Help:")
 	}
 	if len(os.Args) == 2{
 		Key := os.Args[1]
-		fmt.Print("Code:")
-		code.GetCode(Key)
+		var TOTPcode string = code.GetCode(Key)
+		fmt.Printf("Code: %v \n", TOTPcode)
 	}
 }
